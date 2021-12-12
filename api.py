@@ -1,7 +1,7 @@
 import pandas as pd
 import uvicorn
 
-from model import RunModel
+from models.no_decomposition_model import ModelNoDecomposition
 from fastapi import FastAPI, File, UploadFile, status, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -13,7 +13,7 @@ def upload_csv(test_size: float = Query(...),
                csv_file: UploadFile = File(...)):
     dataframe = pd.read_csv(csv_file.file)
     try:
-        m = RunModel(dataframe, test_size)
+        m = ModelNoDecomposition(dataframe, test_size)
         cod, mse = m.run()
         output = {
             'Coefficient of determination' : cod,
