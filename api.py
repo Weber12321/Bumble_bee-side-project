@@ -12,10 +12,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 app = FastAPI(title="Bumble Bee", description="Predict LD50 value by linear regression.")
 
-@app.get("/")
-def index():
-    return RedirectResponse('/docs')
-
 
 @app.post("/upload/")
 def upload_csv(csv_file: UploadFile = File(...)):
@@ -33,6 +29,10 @@ def upload_csv(csv_file: UploadFile = File(...)):
             'error message' : e
         }
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=jsonable_encoder(output))
+
+@app.get("/")
+def index():
+    return RedirectResponse('/docs')
 
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', debug=True)

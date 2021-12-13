@@ -73,21 +73,6 @@ class ModelNoDecomposition(ModelInterface):
 
         return result_dict
 
-        # X_train, X_test, y_train, y_test = train_test_split(self.X_train, self.y_train, test_size=0.2, random_state=42)
-        # self.model.fit(self.X_train, self.y_train)
-        # y_pred = self.model.predict(X_test)
-        # return self.model.score(X_train, y_train)
-
-        # _logger.info(f'{scores}')
-        # test_scores = scores['test_r2']
-        # test_scores_max_idx = np.nanargmax(test_scores)
-        # estimator = scores['estimator'][test_scores_max_idx]
-        # dump(estimator, self.filename)
-        #
-
-        #
-        # return scores
-
     def predict(self):
         if not os.path.isfile(self.filename):
             raise FileNotFoundError(f'file {self.filename} is not found')
