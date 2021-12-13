@@ -5,11 +5,19 @@ from models.no_decomposition_model import ModelNoDecomposition
 
 @click.command()
 @click.option('--file', required=True)
-def run_task(file):
+@click.option('--desc/--asc', default=False, required=True)
+def run_task(file, desc):
     df = pd.read_csv(file, encoding='utf-8', low_memory=False)
-    df = df.dropna()
+
+    if desc:
+        df = df.sort_values(by=['LD50'], ascending=False)
+    else:
+        df = df.sort_values(by=['LD50'], ascending=True)
+
     model = ModelNoDecomposition(df)
-    click.echo(f'The results of 5-fold are {model.train()}')
+    r = model.train()
+    for idx, item in enumerate(r):
+        click.echo(f'fold_{idx+1} : {item}')
 
 
 
