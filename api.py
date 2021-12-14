@@ -1,5 +1,6 @@
 import codecs
 import csv
+import json
 from io import StringIO
 
 import pandas as pd
@@ -15,24 +16,27 @@ app = FastAPI(title="Bumble Bee", description="Predict LD50 value by linear regr
 
 @app.post("/upload/")
 def upload_csv(csv_file: UploadFile = File(...)):
+    # return {'file':csv_file.filename}
     # data = csv.reader(codecs.iterdecode(csv_file.file,'utf-8'), delimiter='\t')
 
-    # dataframe = pd.read_csv(StringIO(csv_file), encoding='utf-8')
-    dataframe = pd.read_csv(csv_file.filename, encoding='utf-8', low_memory=False)
-    try:
-        model = ModelNoDecomposition(dataframe)
-        r_list = model.train()
-        output = {f'fold_{idx+1}': item for idx, item in enumerate(r_list)}
-        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(output))
-    except Exception as e:
-        output = {
-            'error message' : e
-        }
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=jsonable_encoder(output))
+    dataframe = pd.read_json(csv_file.file, encoding='utf-8')
+    # dataframe = pd.DataFrame([row for row in csv_reader])
+
+    # dataframe = pd.read_csv(csv_file.filename, encoding='utf-8')
+    # try:
+    model = ModelNoDecomposition(dataframe)
+    r_list = model.train()
+    output = {f'fold_{idx+1}': item for idx, item in enumerate(r_list)}
+    return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(output))
+    # except Exception as e:
+    #     output = {
+    #         'error message' : e
+    #     }
+    #     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=jsonable_encoder(output))
 
 @app.get("/")
 def index():
     return RedirectResponse('/docs')
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', debug=True)
+    uvicorn.run(app, host='127.0.0.1', port=8080, debug=True)

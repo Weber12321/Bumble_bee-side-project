@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -7,7 +6,6 @@ import pandas as pd
 from joblib import dump, load
 from tqdm import tqdm
 
-from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import KFold
@@ -41,7 +39,6 @@ class ModelNoDecomposition(ModelInterface):
 
         scoring = ['r2', 'neg_mean_squared_error']
         _logger.info(f'{type(self.X_train)}, {type(self.y_train)}')
-        scores = cross_validate(self.model, self.X_train, self.y_train, scoring=scoring)
 
         result_dict = []
         count = 1
@@ -69,8 +66,6 @@ class ModelNoDecomposition(ModelInterface):
 
             count += 1
 
-
-
         return result_dict
 
     def predict(self):
@@ -84,17 +79,16 @@ class ModelNoDecomposition(ModelInterface):
         return r2, mse
 
     def preprocessing(self):
+
         data = self.data[~self.data.isna().any(axis=1)]
         # data.dropna(inplace=True)
 
-        _logger.info(f'Nan number : {len(data[data.isna().any(axis=1)])}')
         # data.replace([np.inf, -np.inf], " ", inplace=True)
         # _logger.info(f'Nan number : {len(data[data.isna().any(axis=1)])}')
         # data = data.dropna()
         arr = data.iloc[:,1:-1].values
         y = data.iloc[:,-1].values
-        _logger.info(f'{np.any(np.isnan(arr))}')
-        _logger.info(f'{np.all(np.isfinite(arr))}')
+
         X = self.scalar.fit_transform(arr)
 
         self.X_train = X
