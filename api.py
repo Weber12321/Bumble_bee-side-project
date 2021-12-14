@@ -6,6 +6,7 @@ from io import StringIO
 import pandas as pd
 import uvicorn
 
+from models.model_generator import generator
 from models.no_decomposition_model import ModelNoDecomposition
 from fastapi import FastAPI, File, UploadFile, status, Query
 from fastapi.encoders import jsonable_encoder
@@ -15,7 +16,7 @@ app = FastAPI(title="Bumble Bee", description="Predict LD50 value by linear regr
 
 
 @app.post("/upload/")
-def upload_csv(csv_file: UploadFile = File(...)):
+def upload_csv(decomposition: str = Query(...), csv_file: UploadFile = File(...)):
     # return {'file':csv_file.filename}
     # data = csv.reader(codecs.iterdecode(csv_file.file,'utf-8'), delimiter='\t')
 
@@ -23,16 +24,17 @@ def upload_csv(csv_file: UploadFile = File(...)):
     # dataframe = pd.DataFrame([row for row in csv_reader])
 
     # dataframe = pd.read_csv(csv_file.filename, encoding='utf-8')
-    # try:
-    model = ModelNoDecomposition(dataframe)
-    r_list = model.train()
-    output = {f'fold_{idx+1}': item for idx, item in enumerate(r_list)}
-    return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(output))
-    # except Exception as e:
-    #     output = {
-    #         'error message' : e
-    #     }
-    #     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=jsonable_encoder(output))
+    try:
+        model = generator().create_model(decomposition, dataframe)
+
+        r_list = model.train()
+        output = {f'fold_{idx+1}': item for idx, item in enumerate(r_list)}
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(output))
+    except Exception as e:
+        output = {
+            'error message' : e
+        }
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=jsonable_encoder(output))
 
 @app.get("/")
 def index():

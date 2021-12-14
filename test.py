@@ -48,4 +48,4 @@ import pandas as pd
 # df = pd.read_csv('apis_contact.csv', encoding='utf-8', low_memory=False)
 # df.to_json('apis_contact.json', indent=4)
 df = pd.read_json('apis_contact.json', encoding='utf-8')
-print(df.iloc[])
+
