@@ -41,7 +41,7 @@ class ModelDecomposition(ModelInterface):
         result_dict = []
         count = 1
         _r2 = 0
-        kf = KFold()
+        kf = KFold(shuffle=True,random_state=42)
         for train_index, test_index in tqdm(kf.split(self.X_train)):
             # _logger.info(("TRAIN:", train_index, "TEST:", test_index))
             X_train, X_test = self.X_train[train_index], self.X_train[test_index]
