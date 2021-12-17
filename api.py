@@ -1,6 +1,7 @@
 import codecs
 import csv
 import json
+from enum import Enum
 from io import StringIO
 
 import pandas as pd
@@ -12,14 +13,21 @@ from fastapi import FastAPI, File, UploadFile, status, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, RedirectResponse
 
+from utils.helper import get_logger
+
 app = FastAPI(title="Bumble Bee", description="Predict LD50 value by linear regression.")
+
+class Decomposition(str, Enum):
+    no_doc = 'no_decomposition'
+    doc = 'decomposition'
 
 
 @app.post("/upload/")
-def upload_csv(decomposition: str = Query(...), csv_file: UploadFile = File(...)):
+def upload_csv(decomposition: Decomposition, csv_file: UploadFile = File(...)):
     # return {'file':csv_file.filename}
     # data = csv.reader(codecs.iterdecode(csv_file.file,'utf-8'), delimiter='\t')
-
+    _logger = get_logger('model')
+    _logger.info(f'filename ==== {csv_file.filename}')
     dataframe = pd.read_json(csv_file.file, encoding='utf-8')
     # dataframe = pd.DataFrame([row for row in csv_reader])
 

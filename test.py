@@ -43,9 +43,35 @@
 #     df = pd.DataFrame(big_list)
 #     print(df.head())
 
-import pandas as pd
+# import pandas as pd
 
 # df = pd.read_csv('apis_contact.csv', encoding='utf-8', low_memory=False)
 # df.to_json('apis_contact.json', indent=4)
-df = pd.read_json('apis_contact.json', encoding='utf-8')
+# from models.model_generator import generator
+#
+# df = pd.read_json('apis_contact.json', encoding='utf-8')
+#
+# model = generator().create_model('decomposition', df)
+#
+# header = list(df.columns)
+# x_header = header[1:-1]
+# scores = model.top_k.scores_
+#
+# feature_weight_dict = {}
+# if len(x_header) == len(model.top_k.scores_):
+#     for idx, element in enumerate(model.top_k.scores_):
+#         feature_weight_dict.update({
+#             x_header[idx] : element
+#         })
+# else:
+#     raise ValueError(f'length of {x_header} is not equal to len of {model.top_k.scores_}')
+#
+# sort_dict = {k: v for k, v in sorted(feature_weight_dict.items(), key=lambda item: item[1], reverse = True)}
+#
+# count = 0
+# for k,v in sort_dict.items():
+#     if count >= 100:
+#         break
+#     print(f'{k} : {v}')
+#     count += 1
 
