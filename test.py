@@ -75,3 +75,13 @@
 #     print(f'{k} : {v}')
 #     count += 1
 
+#
+from collections import Counter
+from models.eda import run_stats, run_k_means
+
+if __name__ == '__main__':
+    filename = 'apis_contact.json'
+    output = run_k_means(filename)
+    print(list(output))
+    print(Counter(output))
+

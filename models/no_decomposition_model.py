@@ -31,6 +31,7 @@ class ModelNoDecomposition(ModelInterface):
         self.X_test = None
         self.y_test = None
         self.filename = Path(SAVE_FOLDER / f"no_decomposition_model.joblib")
+        self.fold = False
         self.preprocessing()
 
     def train(self):
@@ -40,33 +41,44 @@ class ModelNoDecomposition(ModelInterface):
         # scoring = ['r2', 'neg_mean_squared_error']
         # _logger.info(f'{type(self.X_train)}, {type(self.y_train)}')
 
-        result_dict = []
-        count = 1
-        _r2 = 0
-        kf = KFold(shuffle=True,random_state=42)
-        for train_index, test_index in tqdm(kf.split(self.X_train)):
-            # _logger.info(("TRAIN:", train_index, "TEST:", test_index))
-            X_train, X_test = self.X_train[train_index], self.X_train[test_index]
-            y_train, y_test = self.y_train[train_index], self.y_train[test_index]
-
+        if not self.fold:
+            X_train, X_test, y_train, y_test = train_test_split(self.X_train, self.y_train, test_size=0.2, random_state=42)
             self.model.fit(X_train, y_train)
             r2 = self.model.score(X_train, y_train)
             y_pred = self.model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
 
-            _logger.info(f'fold_{count} - R squared: {r2} - MSE: {mse}')
-            temp = {'r2': r2, 'mse': mse}
-            result_dict.append(temp)
+            _logger.info(f'R squared: {r2} - MSE: {mse}')
+
+            return {'r2': r2, 'MSE': mse}
+        else:
+            result_dict = []
+            count = 1
+            _r2 = 0
+            kf = KFold(shuffle=True,random_state=42)
+            for train_index, test_index in tqdm(kf.split(self.X_train)):
+                # _logger.info(("TRAIN:", train_index, "TEST:", test_index))
+                X_train, X_test = self.X_train[train_index], self.X_train[test_index]
+                y_train, y_test = self.y_train[train_index], self.y_train[test_index]
+
+                self.model.fit(X_train, y_train)
+                r2 = self.model.score(X_train, y_train)
+                y_pred = self.model.predict(X_test)
+                mse = mean_squared_error(y_test, y_pred)
+
+                _logger.info(f'fold_{count} - R squared: {r2} - MSE: {mse}')
+                temp = {'r2': r2, 'mse': mse}
+                result_dict.append(temp)
 
 
-            if r2 > _r2:
-                # _logger.info(f'fold_{count}: {r2} is bigger than {_r2}, save model...')
-                dump(self.model, self.filename)
-                _r2 = r2
+                if r2 > _r2:
+                    # _logger.info(f'fold_{count}: {r2} is bigger than {_r2}, save model...')
+                    dump(self.model, self.filename)
+                    _r2 = r2
 
-            count += 1
+                count += 1
 
-        return result_dict
+            return result_dict
 
     def predict(self):
         if not os.path.isfile(self.filename):
@@ -92,8 +104,7 @@ class ModelNoDecomposition(ModelInterface):
         X = self.scalar.fit_transform(arr)
 
         self.X_train = X
-        self.y_train = y.reshape(-1,1)
-
+        self.y_train = y
 
 
 
